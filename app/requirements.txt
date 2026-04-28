@@ -1,2 +1,3 @@
 # Python dependencies for the Library Management System application
 mysql-connector-python>=8.0.33
+Flask>=3.0.0

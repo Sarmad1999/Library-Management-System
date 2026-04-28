@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Fines — LibraryMS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="mb-0"><i class="bi bi-currency-dollar me-2"></i>Fines</h2>
+  <form method="post" action="{{ url_for('calculate_fines') }}"
+        onsubmit="return confirm('Recalculate fines for all overdue books?')">
+    <div class="input-group input-group-sm">
+      <span class="input-group-text">Rate $/day</span>
+      <input type="number" class="form-control" name="rate" value="0.50" min="0.01" step="0.01" style="width:80px">
+      <button class="btn btn-warning" type="submit">
+        <i class="bi bi-calculator me-1"></i>Calculate Fines
+      </button>
+    </div>
+  </form>
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-dark">
+        <tr>
+          <th>Fine ID</th>
+          <th>Transaction #</th>
+          <th>Member</th>
+          <th>Book</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>Calculated On</th>
+          <th>Paid On</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in fines %}
+        <tr>
+          <td>{{ f.fine_id }}</td>
+          <td>{{ f.transaction_id }}</td>
+          <td>{{ f.member_name }}</td>
+          <td class="text-truncate" style="max-width:150px">{{ f.title }}</td>
+          <td class="{% if f.fine_amount > 0 %}text-danger fw-semibold{% endif %}">
+            ${{ "%.2f"|format(f.fine_amount) }}
+          </td>
+          <td>
+            {% if f.status == 'unpaid' %}
+              <span class="badge bg-danger">unpaid</span>
+            {% else %}
+              <span class="badge bg-success">paid</span>
+            {% endif %}
+          </td>
+          <td>{{ f.calculated_on }}</td>
+          <td>{{ f.paid_on or '—' }}</td>
+          <td>
+            {% if f.status == 'unpaid' %}
+            <form method="post" action="{{ url_for('pay_fine', fine_id=f.fine_id) }}"
+                  onsubmit="return confirm('Mark this fine as paid?')">
+              <button class="btn btn-sm btn-outline-success">Mark Paid</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="9" class="text-center text-muted py-4">No fines recorded.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

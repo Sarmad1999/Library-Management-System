@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — LibraryMS{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-speedometer2 me-2"></i>Dashboard</h2>
+
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="card stat-card border-primary h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-muted small">Total Books</div>
+            <div class="fs-3 fw-bold">{{ stats.total_books }}</div>
+          </div>
+          <i class="bi bi-journals fs-1 text-primary opacity-50"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card stat-card border-success h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-muted small">Members</div>
+            <div class="fs-3 fw-bold">{{ stats.total_members }}</div>
+          </div>
+          <i class="bi bi-people fs-1 text-success opacity-50"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card stat-card border-warning h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-muted small">Active Loans</div>
+            <div class="fs-3 fw-bold">{{ stats.active_loans }}</div>
+          </div>
+          <i class="bi bi-arrow-up-circle fs-1 text-warning opacity-50"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card stat-card border-danger h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-muted small">Unpaid Fines</div>
+            <div class="fs-3 fw-bold">${{ "%.2f"|format(stats.unpaid_fines) }}</div>
+          </div>
+          <i class="bi bi-currency-dollar fs-1 text-danger opacity-50"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header fw-semibold"><i class="bi bi-clock-history me-2"></i>Recent Transactions</div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>#</th><th>Member</th><th>Book</th><th>Due</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for t in recent_transactions %}
+              <tr>
+                <td>{{ t.transaction_id }}</td>
+                <td>{{ t.member_name }}</td>
+                <td class="text-truncate" style="max-width:150px">{{ t.title }}</td>
+                <td>{{ t.due_date }}</td>
+                <td>
+                  {% if t.status == 'issued' %}
+                    <span class="badge bg-primary">issued</span>
+                  {% elif t.status == 'overdue' %}
+                    <span class="badge bg-danger">overdue</span>
+                  {% else %}
+                    <span class="badge bg-success">returned</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% else %}
+              <tr><td colspan="5" class="text-center text-muted">No transactions yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card-footer text-end">
+        <a href="{{ url_for('transactions') }}" class="btn btn-sm btn-outline-secondary">View all</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header fw-semibold"><i class="bi bi-exclamation-triangle me-2 text-danger"></i>Overdue &amp; Unpaid Fines</div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr><th>Member</th><th>Book</th><th>Overdue Days</th><th>Fine</th></tr>
+            </thead>
+            <tbody>
+              {% for f in overdue_summary %}
+              <tr>
+                <td>{{ f.member_name }}</td>
+                <td class="text-truncate" style="max-width:140px">{{ f.title }}</td>
+                <td>{{ f.days_overdue }}</td>
+                <td class="text-danger fw-semibold">${{ "%.2f"|format(f.fine_amount) }}</td>
+              </tr>
+              {% else %}
+              <tr><td colspan="4" class="text-center text-muted">No overdue loans.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card-footer text-end">
+        <a href="{{ url_for('fines') }}" class="btn btn-sm btn-outline-secondary">View all fines</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

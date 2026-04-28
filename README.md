@@ -17,7 +17,16 @@ Library-Management-System/
 │   └── procedures.sql    ← Stored procedures: calculate fines, issue a book
 ├── app/
 │   ├── app.py            ← Python CLI (search books, issue books)
-│   └── requirements.txt  ← Python dependencies
+│   ├── web_app.py        ← Flask web interface
+│   ├── requirements.txt  ← Python dependencies (Flask + mysql-connector-python)
+│   └── templates/        ← Jinja2 HTML templates
+│       ├── base.html
+│       ├── index.html
+│       ├── books.html
+│       ├── members.html
+│       ├── issue.html
+│       ├── transactions.html
+│       └── fines.html
 └── README.md
 ```
 
@@ -138,11 +147,41 @@ pip install -r app/requirements.txt
 
 ### Step 5 — Run the Application
 
+#### Option A — Web Interface (recommended)
+
+```bash
+python app/web_app.py
+```
+
+Then open your browser at **http://127.0.0.1:5000**.
+
+The web interface provides:
+- **Dashboard** — live stats (total books, members, active loans, unpaid fines) plus recent transactions and overdue summary
+- **Books** — searchable catalogue with available-copy badges and quick "Issue" links
+- **Members** — list of all registered members
+- **Issue Book** — dropdown form that calls `sp_issue_book`
+- **Transactions** — filterable list (all / issued / returned / overdue) with one-click "Return" action
+- **Fines** — list of all fines with "Calculate Fines" (calls `sp_calculate_fines`) and "Mark Paid" buttons
+
+You can also configure the database connection via environment variables instead of editing the source file:
+
+```bash
+export DB_HOST=127.0.0.1
+export DB_PORT=3306
+export DB_USER=root
+export DB_PASSWORD=your_pass
+export DB_NAME=library_db
+python app/web_app.py
+```
+
+#### Option B — CLI
+
+#### Option B — CLI
+
 ```bash
 python app/app.py
 ```
 
-You will see an interactive menu:
 
 ```
 =======================================================

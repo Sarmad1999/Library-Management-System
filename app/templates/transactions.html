@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Transactions — LibraryMS{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-card-list me-2"></i>Transactions</h2>
+
+<!-- Filter bar -->
+<form method="get" class="row g-2 mb-4 align-items-end">
+  <div class="col-auto">
+    <label class="form-label mb-1 small">Status</label>
+    <select class="form-select form-select-sm" name="status">
+      <option value="" {% if not status_filter %}selected{% endif %}>All</option>
+      <option value="issued"   {% if status_filter=='issued'   %}selected{% endif %}>Issued</option>
+      <option value="returned" {% if status_filter=='returned' %}selected{% endif %}>Returned</option>
+      <option value="overdue"  {% if status_filter=='overdue'  %}selected{% endif %}>Overdue</option>
+    </select>
+  </div>
+  <div class="col-auto">
+    <button class="btn btn-sm btn-primary">Filter</button>
+    {% if status_filter %}
+    <a class="btn btn-sm btn-outline-secondary ms-1" href="{{ url_for('transactions') }}">Clear</a>
+    {% endif %}
+  </div>
+</form>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Copy ID</th>
+          <th>Book</th>
+          <th>Member</th>
+          <th>Issue Date</th>
+          <th>Due Date</th>
+          <th>Return Date</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in transactions %}
+        <tr>
+          <td>{{ t.transaction_id }}</td>
+          <td>{{ t.copy_id }}</td>
+          <td class="text-truncate" style="max-width:160px">{{ t.title }}</td>
+          <td>{{ t.member_name }}</td>
+          <td>{{ t.issue_date }}</td>
+          <td>{{ t.due_date }}</td>
+          <td>{{ t.return_date or '—' }}</td>
+          <td>
+            {% if t.status == 'issued' %}
+              <span class="badge bg-primary">issued</span>
+            {% elif t.status == 'overdue' %}
+              <span class="badge bg-danger">overdue</span>
+            {% else %}
+              <span class="badge bg-success">returned</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if t.return_date is none %}
+            <form method="post" action="{{ url_for('return_book', transaction_id=t.transaction_id) }}"
+                  onsubmit="return confirm('Mark this book as returned?')">
+              <button class="btn btn-sm btn-outline-success">Return</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="9" class="text-center text-muted py-4">No transactions found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
