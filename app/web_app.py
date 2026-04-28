@@ -187,7 +187,7 @@ def issue():
                 "CALL sp_issue_book(%s, %s, %s, @p_result)",
                 (book_id, member_id, loan_days),
             )
-            cursor.fetchall()
+            cursor.fetchall()  # consume any result sets the procedure may return before reading the OUT param
             cursor.execute("SELECT @p_result AS result")
             row = cursor.fetchone()
             result_msg = row[0] if row else "No response from procedure."
@@ -388,4 +388,5 @@ def pay_fine(fine_id):
 # Entry point
 # ------------------------------------------------------------------
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    debug_mode = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
+    app.run(debug=debug_mode, host="0.0.0.0", port=5000)

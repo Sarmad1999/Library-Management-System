@@ -176,8 +176,6 @@ python app/web_app.py
 
 #### Option B — CLI
 
-#### Option B — CLI
-
 ```bash
 python app/app.py
 ```
